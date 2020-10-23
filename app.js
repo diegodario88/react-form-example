@@ -9,9 +9,47 @@ const {
     Box,
     SvgIcon,
     Link,
+    TextField,
+    Button,
+    Switch,
+    FormControlLabel,
 } = MaterialUI;
+const MyContext = React.createContext(null)
+const UPDATE_USER = 'UPDATE_USER'
+const SET_NEWS = 'SET_NEWS'
+const SET_PROMO = 'SET_PROMO'
+const initialState = {
+    name: null,
+    lastname: null,
+    cpf: null,
+    news: true,
+    promo: true,
+}
 
-// Create a theme instance.
+function reducer(state, action) {
+    switch (action.type) {
+        case 'UPDATE_USER':
+            return {
+                ...state,
+                name: action.name,
+                lastname: action.lastname,
+                cpf: action.cpf,
+            }
+        case 'SET_NEWS':
+            return {
+                ...state,
+                news: action.news ? true : false
+            }
+        case 'SET_PROMO':
+            return {
+                ...state,
+                promo: action.promo ? true : false
+            }
+        default:
+            break;
+    }
+}
+
 const theme = createMuiTheme({
     palette: {
         primary: {
@@ -45,12 +83,95 @@ const useStyles = makeStyles(theme => ({
         verticalAlign: 'middle',
         marginRight: theme.spacing(1),
     },
+    switchAlign: {
+        marginLeft: '30%'
+    },
+    buttonAlign: {
+        marginTop: '3rem',
+        width: '60%',
+        marginLeft: '20%',
+    },
+    inputsAlign: {
+        marginBottom: '1rem'
+    }
 }));
+
+function Form() {
+    const classes = useStyles();
+    const { dispatch } = React.useContext(MyContext);
+    const [values, setValues] = React.useState({
+        name: null,
+        lastname: null,
+        cpf: null,
+    });
+
+    const handleChange = ({ target }) => setValues({...values, [target.id]: target.value });
+    const handleSubmit = (submitEvent) => {
+        submitEvent.preventDefault();
+        dispatch({ type: 'UPDATE_USER', ...values });
+    }
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <TextField className={classes.inputsAlign} id="name"
+                onChange={handleChange} label="Nome" variant="outlined" fullWidth />
+            <TextField className={classes.inputsAlign} id="lastname"
+                onChange={handleChange} label="Sobrenome" variant="outlined" fullWidth />
+            <TextField className={classes.inputsAlign} id="cpf"
+                onChange={handleChange} label="CPF" variant="outlined" fullWidth />
+            <Switches />
+            <Button className={classes.buttonAlign} type="submit"
+                variant="contained" color="primary">
+                Cadastrar
+            </Button>
+        </form>
+    );
+}
+
+function Switches() {
+    const classes = useStyles();
+    const { user, dispatch } = React.useContext(MyContext);
+    const handleSwitchChange = ({ target }) => {
+        const { name } = target;
+        if (name === 'promo') {
+            return dispatch({ type: 'SET_PROMO', promo: target.checked });
+        }
+        dispatch({ type: 'SET_NEWS', news: target.checked });
+    }
+
+    return (
+        <div className={classes.switchAlign}>
+            <FormControlLabel
+                control={
+                    <Switch
+                        checked={user.promo}
+                        onChange={handleSwitchChange}
+                        name="promo"
+                        inputProps={{ 'aria-label': 'secondary checkbox' }}
+                    />
+                }
+                label="Receber promoções"
+            />
+            <FormControlLabel
+                control={
+                    <Switch
+                        checked={user.news}
+                        onChange={handleSwitchChange}
+                        color="primary"
+                        name="news"
+                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                    />
+                }
+                label="Receber novidades"
+            />
+        </div>
+    );
+}
 
 function ProTip() {
     const classes = useStyles();
     return (
-        <Typography className={classes.root} color="textSecondary">
+        <Typography align="center" className={classes.root} color="textSecondary">
             <LightBulbIcon className={classes.lightBulb} />
                 Pro tip: See more{' '}
             <Link href="https://material-ui.com/getting-started/templates/">
@@ -75,16 +196,21 @@ function Copyright() {
 }
 
 function App() {
+    const [user, dispatch] = React.useReducer(reducer, initialState);
+
     return (
-        <Container maxWidth="sm">
-            <div style={{ marginTop: 24, }}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                    Criando Formulário com React 
+        <MyContext.Provider value={{ user, dispatch }}>
+            <Container maxWidth="sm">
+                <div style={{ marginTop: 24, }}>
+                    <Typography align="center" variant="h4" component="h1" gutterBottom>
+                        Formulário com React
                 </Typography>
-                <ProTip />
-                <Copyright />
-            </div>
-        </Container>
+                    <Form />
+                    <ProTip />
+                    <Copyright />
+                </div>
+            </Container>
+        </MyContext.Provider>
     );
 }
 
