@@ -15,10 +15,15 @@ const {
     FormControlLabel,
     Paper
 } = MaterialUI;
-const MyContext = React.createContext(null)
-const UPDATE_USER = 'UPDATE_USER'
-const SET_NEWS = 'SET_NEWS'
-const SET_PROMO = 'SET_PROMO'
+
+
+
+const MyContext = React.createContext(null);
+
+const UPDATE_USER = 'UPDATE_USER';
+const SET_NEWS = 'SET_NEWS';
+const SET_PROMO = 'SET_PROMO';
+
 const initialState = {
     name: null,
     lastname: null,
@@ -26,7 +31,8 @@ const initialState = {
     news: false,
     promo: false,
 }
-const isUserComplete = (obj) => {
+
+const isUserFilledIn = (obj) => {
     const isNullOrUndefined = (obj === null) || (obj === undefined)
     if (isNullOrUndefined) return false;
     if (Object.values(obj).includes(null)) return false;
@@ -143,11 +149,14 @@ function Form() {
 function Switches() {
     const classes = useStyles();
     const { user, dispatch } = React.useContext(MyContext);
+
     const handleSwitchChange = ({ target }) => {
         const { name } = target;
+
         if (name === 'promo') {
             return dispatch({ type: 'SET_PROMO', promo: target.checked });
         }
+
         dispatch({ type: 'SET_NEWS', news: target.checked });
     }
 
@@ -243,7 +252,7 @@ function App() {
                 </Typography>
                 <MyContext.Provider value={{ user, dispatch }}>
                     {
-                        isUserComplete(user)
+                        isUserFilledIn(user)
                             ? <Reset />
                             : <Form />
                     }
