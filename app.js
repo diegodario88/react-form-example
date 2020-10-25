@@ -221,8 +221,6 @@ function Reset() {
     const { user, dispatch } = React.useContext(MyContext);
     const setDefault = () => {
         dispatch({ type: 'UPDATE_USER', ...initialState });
-        dispatch({ type: 'SET_NEWS', news: '' });
-        dispatch({ type: 'SET_PROMO', promo: '' });
     }
 
     return (
