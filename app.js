@@ -13,6 +13,7 @@ const {
     Button,
     Switch,
     FormControlLabel,
+    Paper
 } = MaterialUI;
 const MyContext = React.createContext(null)
 const UPDATE_USER = 'UPDATE_USER'
@@ -22,8 +23,14 @@ const initialState = {
     name: null,
     lastname: null,
     cpf: null,
-    news: true,
-    promo: true,
+    news: false,
+    promo: false,
+}
+const isUserComplete = (obj) => {
+    const isNullOrUndefined = (obj === null) || (obj === undefined)
+    if (isNullOrUndefined) return false;
+    if (Object.values(obj).includes(null)) return false;
+    return true;
 }
 
 function reducer(state, action) {
@@ -91,6 +98,11 @@ const useStyles = makeStyles(theme => ({
         width: '60%',
         marginLeft: '20%',
     },
+    jsonAlign: {
+        padding: '3rem 0 3rem 0',
+        width: '60%',
+        marginLeft: '20%',
+    },
     inputsAlign: {
         marginBottom: '1rem'
     }
@@ -105,7 +117,7 @@ function Form() {
         cpf: null,
     });
 
-    const handleChange = ({ target }) => setValues({...values, [target.id]: target.value });
+    const handleChange = ({ target }) => setValues({ ...values, [target.id]: target.value });
     const handleSubmit = (submitEvent) => {
         submitEvent.preventDefault();
         dispatch({ type: 'UPDATE_USER', ...values });
@@ -122,7 +134,7 @@ function Form() {
             <Switches />
             <Button className={classes.buttonAlign} type="submit"
                 variant="contained" color="primary">
-                Cadastrar
+                CADASTRAR
             </Button>
         </form>
     );
@@ -195,22 +207,51 @@ function Copyright() {
     );
 }
 
+function Reset() {
+    const classes = useStyles();
+    const { user, dispatch } = React.useContext(MyContext);
+    const setDefault = () => {
+        dispatch({ type: 'UPDATE_USER', ...initialState });
+        dispatch({ type: 'SET_NEWS', news: '' });
+        dispatch({ type: 'SET_PROMO', promo: '' });
+    }
+
+    return (
+        <React.Fragment>
+            <Paper elevation={3}>
+                <div className={classes.jsonAlign}>
+                    <pre>{JSON.stringify(user, null, 2)}</pre>
+                </div>
+            </Paper>
+
+            <Button onClick={setDefault} className={classes.buttonAlign} type="submit"
+                variant="contained" color="primary">
+                RESETAR
+            </Button>
+        </React.Fragment>
+    );
+}
+
 function App() {
     const [user, dispatch] = React.useReducer(reducer, initialState);
 
     return (
-        <MyContext.Provider value={{ user, dispatch }}>
-            <Container maxWidth="sm">
-                <div style={{ marginTop: 24, }}>
-                    <Typography align="center" variant="h4" component="h1" gutterBottom>
-                        Formulário com React
+        <Container maxWidth="sm">
+            <div style={{ marginTop: 24, }}>
+                <Typography align="center" variant="h4" component="h1" gutterBottom>
+                    Formulário com React
                 </Typography>
-                    <Form />
-                    <ProTip />
-                    <Copyright />
-                </div>
-            </Container>
-        </MyContext.Provider>
+                <MyContext.Provider value={{ user, dispatch }}>
+                    {
+                        isUserComplete(user)
+                            ? <Reset />
+                            : <Form />
+                    }
+                </MyContext.Provider>
+                <ProTip />
+                <Copyright />
+            </div>
+        </Container>
     );
 }
 
