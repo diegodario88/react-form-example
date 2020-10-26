@@ -16,9 +16,7 @@ const {
     Paper
 } = MaterialUI;
 
-
-
-const MyContext = React.createContext(null);
+const MyContext = React.createContext();
 
 const UPDATE_USER = 'UPDATE_USER';
 const SET_NEWS = 'SET_NEWS';
